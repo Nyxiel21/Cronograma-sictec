@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>SICTEC.26!</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header>
+        <div class="container">
+            <h1>📅 Cronograma de Posts</h1>
+            <p>Marketing</p>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <section class="evento">
+            <div>
+                <h2>SICTEC 2026</h2>
+                <p>📍 IFRN - Campus Canguaretama</p>
+                <p>📅 05 de novembro de 2026</p>
+            </div>
+
+            <button id="novoPostBtn">
+                + Novo Post
+            </button>
+        </section>
+
+        <section id="cronograma">
+
+            <!-- Semana 1 -->
+            <div class="semana">
+
+                <div class="semana-header">
+                    <div>
+                        <h2>Semana 1</h2>
+                        <span>Cronograma</span>
+                    </div>
+                </div>
+
+                <div class="posts">
+
+                    <div class="post planejado">
+
+                        <div class="post-topo">
+                            <span class="numero">POST 1</span>
+                            <span class="status">Planejado</span>
+                        </div>
+
+                        <h3>📢 Anúncio oficial do evento</h3>
+
+                        <p>
+                            Apresentar oficialmente o evento e despertar
+                            a curiosidade do público.
+                        </p>
+
+                        <div class="post-info">
+                            <span>📅 02/09/2026</span>
+                        </div>
+
+                        <div class="acoes">
+                            <button class="publicar">✓ Publicar</button>
+                            <button class="editar">✏️ Editar</button>
+                            <button class="excluir">🗑️ Excluir</button>
+                        </div>
+
+                    </div>
+
+                    <div class="post publicado">
+
+                        <div class="post-topo">
+                            <span class="numero">POST 2</span>
+                            <span class="status">Publicado</span>
+                        </div>
+
+                        <h3>👀 Vem aí uma novidade!</h3>
+
+                        <p>
+                            Criar expectativa para o evento.
+                        </p>
+
+                        <div class="post-info">
+                            <span>📅 05/09/2026</span>
+                        </div>
+
+                        <div class="acoes">
+                            <button class="publicar">✓ Publicado</button>
+                            <button class="editar">✏️ Editar</button>
+                            <button class="excluir">🗑️ Excluir</button>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Modal para adicionar/editar -->
+    <div id="modal" class="modal">
+
+        <div class="modal-conteudo">
+
+            <div class="modal-header">
+                <h2 id="modalTitulo">Novo Post</h2>
+                <button id="fecharModal">×</button>
+            </div>
+
+            <label for="semanaInput">Semana</label>
+
+            <select id="semanaInput">
+                <option value="1">Semana 1</option>
+                <option value="2">Semana 2</option>
+                <option value="3">Semana 3</option>
+                <option value="4">Semana 4</option>
+                <option value="5">Semana 5</option>
+                <option value="6">Semana 6</option>
+            </select>
+
+            <label for="tituloInput">Título do post</label>
+
+            <input
+                type="text"
+                id="tituloInput"
+                placeholder="Ex: Divulgação da atração"
+            >
+
+            <label for="descricaoInput">Descrição</label>
+
+            <textarea
+                id="descricaoInput"
+                placeholder="Explique a ideia do post..."
+            ></textarea>
+
+            <label for="dataInput">Data de publicação</label>
+
+            <input type="date" id="dataInput">
+
+            <label for="statusInput">Status</label>
+
+            <select id="statusInput">
+                <option value="planejado">Planejado</option>
+                <option value="producao">Em produção</option>
+                <option value="publicado">Publicado</option>
+            </select>
+
+            <button id="salvarPost" class="salvar">
+                Salvar Post
+            </button>
+
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
