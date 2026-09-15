@@ -28,6 +28,8 @@ header {
     padding: 90px 0;
 
     position: relative;
+
+    z-index: 10;
 }
 
 header::before {
@@ -301,11 +303,10 @@ textarea {
 
 .login-tela {
     position: fixed;
-    top: 0;
-    left: 0;
+    inset: 0;
 
-    width: 100vw;
-    height: 100vh;
+    width: 100%;
+    height: 100%;
 
     background: #f4f6f8;
 
@@ -381,4 +382,20 @@ textarea {
     text-align: center;
 
     color: #dc2626;
+}
+
+#sairBtn {
+    position: absolute;
+
+    top: 20px;
+    right: 20px;
+
+    z-index: 20;
+
+    background: white;
+    color: #202124;
+}
+
+#sairBtn:hover {
+    background: #f1f1f1;
 }
