@@ -8,6 +8,51 @@ const supabaseClient = supabase.createClient(
     SUPABASE_KEY
 );
 
+/* LOGIN */
+
+const loginTela = document.getElementById("loginTela");
+const emailLogin = document.getElementById("emailLogin");
+const senhaLogin = document.getElementById("senhaLogin");
+const entrarBtn = document.getElementById("entrarBtn");
+const mensagemLogin = document.getElementById("mensagemLogin");
+
+
+entrarBtn.addEventListener("click", async () => {
+
+    const email = emailLogin.value.trim();
+    const senha = senhaLogin.value;
+
+    mensagemLogin.textContent = "";
+
+    if (email === "" || senha === "") {
+
+        mensagemLogin.textContent =
+            "Preencha o e-mail e a senha.";
+
+        return;
+    }
+
+
+    const { data, error } =
+        await supabaseClient.auth.signInWithPassword({
+            email: email,
+            password: senha
+        });
+
+
+    if (error) {
+
+        mensagemLogin.textContent =
+            "E-mail ou senha incorretos.";
+
+        return;
+    }
+
+
+    loginTela.style.display = "none";
+
+});
+
 const novoPostBtn = document.getElementById("novoPostBtn");
 const fecharModal = document.getElementById("fecharModal");
 const salvarPost = document.getElementById("salvarPost");
