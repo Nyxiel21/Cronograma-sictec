@@ -306,6 +306,34 @@ sairBtn.addEventListener(
     }
 );
 
+/* LOGOUT */
+
+sairBtn.addEventListener("click", async () => {
+
+    console.log("Botão Sair clicado!");
+
+    sairBtn.disabled = true;
+    sairBtn.textContent = "Saindo...";
+
+    const { error } = await supabaseClient.auth.signOut();
+
+    if (error) {
+        console.error("Erro ao sair:", error);
+
+        sairBtn.disabled = false;
+        sairBtn.textContent = "🚪 Sair";
+
+        return;
+    }
+
+    console.log("Logout realizado!");
+
+    atualizarPermissoes(null);
+
+    sairBtn.disabled = false;
+    sairBtn.textContent = "🚪 Sair";
+});
+
 
 /* =====================================================
    OBSERVAR ALTERAÇÕES DE LOGIN
