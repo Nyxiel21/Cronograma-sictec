@@ -16,6 +16,42 @@ const senhaLogin = document.getElementById("senhaLogin");
 const entrarBtn = document.getElementById("entrarBtn");
 const mensagemLogin = document.getElementById("mensagemLogin");
 
+function atualizarPermissoes(usuario) {
+
+    const novoPostBtn = document.getElementById("novoPostBtn");
+
+    if (usuario) {
+        // Administrador logado
+        novoPostBtn.style.display = "inline-block";
+
+        document.querySelectorAll(".editar, .excluir").forEach(botao => {
+            botao.style.display = "inline-block";
+        });
+
+    } else {
+        // Visitante
+        novoPostBtn.style.display = "none";
+
+        document.querySelectorAll(".editar, .excluir").forEach(botao => {
+            botao.style.display = "none";
+        });
+    }
+
+        document.querySelectorAll(".editar, .excluir").forEach(botao => {
+        botao.style.display = usuario ? "inline-block" : "none";
+    });
+}
+
+supabaseClient.auth.getSession().then(({ data }) => {
+
+    if (data.session) {
+        loginTela.style.display = "none";
+        atualizarPermissoes(data.session.user);
+    } else {
+        atualizarPermissoes(null);
+    }
+
+});
 
 entrarBtn.addEventListener("click", async () => {
 
@@ -50,6 +86,7 @@ entrarBtn.addEventListener("click", async () => {
 
 
     loginTela.style.display = "none";
+    atualizarPermissoes(data.user);
 
 });
 
