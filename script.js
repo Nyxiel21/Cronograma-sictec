@@ -1,5 +1,13 @@
 const modal = document.getElementById("modal");
 
+const SUPABASE_URL = "https://lzmibbwrcixusnmechhd.supabase.co/rest/v1/";
+const SUPABASE_KEY = "sb_publishable_47OTPho0Qw5mfrl69TJ7Cg_h9Z_7NMy";
+
+const supabaseClient = supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+);
+
 const novoPostBtn = document.getElementById("novoPostBtn");
 const fecharModal = document.getElementById("fecharModal");
 const salvarPost = document.getElementById("salvarPost");

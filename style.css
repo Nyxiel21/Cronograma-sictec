@@ -296,3 +296,85 @@ textarea {
     }
 
 }
+
+/* LOGIN */
+
+.login-tela {
+    position: fixed;
+    inset: 0;
+
+    background: #f4f6f8;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    padding: 20px;
+
+    z-index: 9999;
+}
+
+.login-caixa {
+    background: white;
+
+    width: 100%;
+    max-width: 400px;
+
+    padding: 30px;
+
+    border-radius: 12px;
+
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.12);
+}
+
+.login-caixa h2 {
+    margin-bottom: 10px;
+}
+
+.login-caixa > p {
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.login-caixa label {
+    display: block;
+
+    margin-top: 15px;
+    margin-bottom: 6px;
+
+    font-weight: bold;
+}
+
+.login-caixa input {
+    width: 100%;
+
+    padding: 12px;
+
+    border: 1px solid #ccc;
+    border-radius: 7px;
+
+    font-size: 14px;
+}
+
+#entrarBtn {
+    width: 100%;
+
+    margin-top: 20px;
+
+    background: #2563eb;
+    color: white;
+
+    padding: 13px;
+}
+
+#entrarBtn:hover {
+    background: #1d4ed8;
+}
+
+#mensagemLogin {
+    margin-top: 15px;
+
+    text-align: center;
+
+    color: #dc2626;
+}
