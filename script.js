@@ -16,10 +16,9 @@ const senhaLogin = document.getElementById("senhaLogin");
 const entrarBtn = document.getElementById("entrarBtn");
 const mensagemLogin = document.getElementById("mensagemLogin");
 
-let usuarioLogado = null;
+const sairBtn = document.getElementById("sairBtn");
 
-const sairBtn =
-    document.getElementById("sairBtn");
+let usuarioLogado = null;
 
 
 /* CONTROLAR PERMISSÕES */
@@ -30,6 +29,138 @@ function atualizarPermissoes(usuario) {
 
     const novoPostBtn =
         document.getElementById("novoPostBtn");
+
+
+    if (usuario) {
+
+        // ADMINISTRADOR
+
+        loginTela.style.display = "none";
+
+        novoPostBtn.style.display =
+            "inline-block";
+
+        sairBtn.style.display =
+            "inline-block";
+
+    } else {
+
+        // VISITANTE
+
+        loginTela.style.display = "flex";
+
+        novoPostBtn.style.display =
+            "none";
+
+        sairBtn.style.display =
+            "none";
+
+    }
+
+
+    // Controlar botões dos posts
+
+    document.querySelectorAll(
+        ".publicar, .editar, .excluir"
+    ).forEach(botao => {
+
+        botao.style.display =
+            usuario
+                ? "inline-block"
+                : "none";
+
+    });
+
+}
+
+
+/* BOTÃO SAIR */
+
+sairBtn.addEventListener("click", async () => {
+
+    const { error } =
+        await supabaseClient.auth.signOut();
+
+    if (error) {
+
+        console.error(
+            "Erro ao sair:",
+            error
+        );
+
+        return;
+    }
+
+    atualizarPermissoes(null);
+
+});
+
+
+/* VERIFICAR SESSÃO AO ABRIR O SITE */
+
+supabaseClient.auth.getSession()
+    .then(({ data }) => {
+
+        atualizarPermissoes(
+            data.session
+                ? data.session.user
+                : null
+        );
+
+    });
+
+
+/* LOGIN */
+
+entrarBtn.addEventListener("click", async () => {
+
+    const email =
+        emailLogin.value.trim();
+
+    const senha =
+        senhaLogin.value;
+
+
+    mensagemLogin.textContent = "";
+
+
+    if (email === "" || senha === "") {
+
+        mensagemLogin.textContent =
+            "Preencha o e-mail e a senha.";
+
+        return;
+    }
+
+
+    const { data, error } =
+        await supabaseClient.auth.signInWithPassword({
+
+            email: email,
+            password: senha
+
+        });
+
+
+    if (error) {
+
+        console.error(
+            "Erro no login:",
+            error
+        );
+
+        mensagemLogin.textContent =
+            "E-mail ou senha incorretos.";
+
+        return;
+    }
+
+
+    atualizarPermissoes(data.user);
+
+});
+
+    const novoPostBtn = document.getElementById("novoPostBtn");
 
 
     if (usuario) {
@@ -75,8 +206,6 @@ function atualizarPermissoes(usuario) {
         atualizarPermissoes(null);
 
     });
-
-}
 
 
 /* VERIFICAR SESSÃO AO ABRIR O SITE */
