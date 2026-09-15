@@ -260,34 +260,43 @@ entrarBtn.addEventListener(
     }
 );
 
-/* LOGOUT */
+
+/* =====================================================
+   BOTÃO SAIR
+===================================================== */
 
 sairBtn.addEventListener("click", async () => {
 
-    console.log("Botão Sair clicado!");
+    alert("CLIQUEI NO BOTÃO SAIR!");
 
-    sairBtn.disabled = true;
-    sairBtn.textContent = "Saindo...";
+    console.log("1 - Clique no botão Sair detectado");
 
-    const { error } = await supabaseClient.auth.signOut();
+    const { data, error } =
+        await supabaseClient.auth.getSession();
 
-    if (error) {
-        console.error("Erro ao sair:", error);
+    console.log("2 - Sessão atual:", data);
+    console.log("3 - Erro ao pegar sessão:", error);
 
-        sairBtn.disabled = false;
-        sairBtn.textContent = "🚪 Sair";
+    const resultado =
+        await supabaseClient.auth.signOut();
+
+    console.log("4 - Resultado do logout:", resultado);
+
+    if (resultado.error) {
+
+        alert(
+            "Erro ao sair: " +
+            resultado.error.message
+        );
 
         return;
     }
 
-    console.log("Logout realizado!");
+    console.log("5 - Logout realizado!");
 
     atualizarPermissoes(null);
 
-    sairBtn.disabled = false;
-    sairBtn.textContent = "🚪 Sair";
 });
-
 
 /* =====================================================
    OBSERVAR ALTERAÇÕES DE LOGIN
