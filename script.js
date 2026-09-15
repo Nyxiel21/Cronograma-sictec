@@ -8,6 +8,16 @@ const supabaseClient = supabase.createClient(
     SUPABASE_KEY
 );
 
+console.log("Supabase carregado!");
+
+const loginTela = document.getElementById("loginTela");
+const emailLogin = document.getElementById("emailLogin");
+const senhaLogin = document.getElementById("senhaLogin");
+const entrarBtn = document.getElementById("entrarBtn");
+const mensagemLogin = document.getElementById("mensagemLogin");
+
+console.log("Botão de login:", entrarBtn);
+
 /* LOGIN */
 
 const loginTela = document.getElementById("loginTela");
