@@ -16,31 +16,122 @@ const senhaLogin = document.getElementById("senhaLogin");
 const entrarBtn = document.getElementById("entrarBtn");
 const mensagemLogin = document.getElementById("mensagemLogin");
 
+let usuarioLogado = null;
+
+const sairBtn =
+    document.getElementById("sairBtn");
+
+
+/* CONTROLAR PERMISSÕES */
+
 function atualizarPermissoes(usuario) {
 
-    const novoPostBtn = document.getElementById("novoPostBtn");
+    usuarioLogado = usuario;
+
+    const novoPostBtn =
+        document.getElementById("novoPostBtn");
+
 
     if (usuario) {
-        // Administrador logado
-        novoPostBtn.style.display = "inline-block";
 
-        document.querySelectorAll(".editar, .excluir").forEach(botao => {
-            botao.style.display = "inline-block";
-        });
+        // ADMINISTRADOR
+        loginTela.style.display = "none";
+
+        novoPostBtn.style.display =
+            "inline-block";
+
+        sairBtn.style.display =
+            "inline-block";
 
     } else {
-        // Visitante
-        novoPostBtn.style.display = "none";
 
-        document.querySelectorAll(".editar, .excluir").forEach(botao => {
-            botao.style.display = "none";
-        });
+        // VISITANTE
+        loginTela.style.display = "flex";
+
+        novoPostBtn.style.display =
+            "none";
+
+        sairBtn.style.display =
+            "none";
+
     }
 
-        document.querySelectorAll(".editar, .excluir").forEach(botao => {
-        botao.style.display = usuario ? "inline-block" : "none";
+
+    document.querySelectorAll(
+        ".publicar, .editar, .excluir"
+    ).forEach(botao => {
+
+        botao.style.display =
+            usuario
+                ? "inline-block"
+                : "none";
+
     });
+
+    sairBtn.addEventListener("click", async () => {
+
+        await supabaseClient.auth.signOut();
+
+        atualizarPermissoes(null);
+
+    });
+
 }
+
+
+/* VERIFICAR SESSÃO AO ABRIR O SITE */
+
+supabaseClient.auth.getSession()
+    .then(({ data }) => {
+
+        atualizarPermissoes(
+            data.session
+                ? data.session.user
+                : null
+        );
+
+    });
+
+
+/* LOGIN */
+
+entrarBtn.addEventListener("click", async () => {
+
+    const email = emailLogin.value.trim();
+    const senha = senhaLogin.value;
+
+    mensagemLogin.textContent = "";
+
+    if (email === "" || senha === "") {
+
+        mensagemLogin.textContent =
+            "Preencha o e-mail e a senha.";
+
+        return;
+    }
+
+
+    const { data, error } =
+        await supabaseClient.auth.signInWithPassword({
+
+            email: email,
+            password: senha
+
+        });
+
+
+    if (error) {
+
+        mensagemLogin.textContent =
+            "E-mail ou senha incorretos.";
+
+        return;
+    }
+
+
+    atualizarPermissoes(data.user);
+
+});
 
 supabaseClient.auth.getSession().then(({ data }) => {
 
@@ -276,8 +367,7 @@ salvarPost.addEventListener("click", () => {
 
 });
 
-
-/* CONFIGURAR BOTÕES */
+    /* CONFIGURAR BOTÕES */
 
 function configurarBotoes(post) {
 
@@ -291,44 +381,80 @@ function configurarBotoes(post) {
         post.querySelector(".excluir");
 
 
+    // Esconder os botões se não estiver logado
+
+    publicar.style.display =
+        usuarioLogado ? "inline-block" : "none";
+
+    editar.style.display =
+        usuarioLogado ? "inline-block" : "none";
+
+    excluir.style.display =
+        usuarioLogado ? "inline-block" : "none";
+
+
+    /* PUBLICAR */
+
     publicar.addEventListener("click", () => {
 
-        atualizarStatus(post, "publicado");
+        if (!usuarioLogado) return;
+
+        atualizarStatus(
+            post,
+            "publicado"
+        );
 
         salvarDados();
 
     });
 
 
+    /* EDITAR */
+
     editar.addEventListener("click", () => {
+
+        if (!usuarioLogado) return;
 
         postEditando = post;
 
         document.getElementById("modalTitulo")
             .textContent = "Editar Post";
 
+
         tituloInput.value =
             post.querySelector("h3")
                 .textContent
                 .replace("📱 ", "");
 
+
         descricaoInput.value =
-            post.querySelector("p").textContent;
+            post.querySelector("p")
+                .textContent;
+
 
         statusInput.value =
             post.classList.contains("publicado")
                 ? "publicado"
-                : "planejado";
+                : post.classList.contains("producao")
+                    ? "producao"
+                    : "planejado";
+
 
         modal.classList.add("ativo");
 
     });
 
 
+    /* EXCLUIR */
+
     excluir.addEventListener("click", () => {
+
+        if (!usuarioLogado) return;
+
 
         const confirmar =
             confirm("Deseja excluir este post?");
+
 
         if (confirmar) {
 
@@ -341,7 +467,6 @@ function configurarBotoes(post) {
     });
 
 }
-
 
 /* ALTERAR STATUS */
 
