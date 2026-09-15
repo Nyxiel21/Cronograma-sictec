@@ -260,52 +260,6 @@ entrarBtn.addEventListener(
     }
 );
 
-
-/* =====================================================
-   BOTÃO SAIR
-===================================================== */
-
-sairBtn.addEventListener(
-    "click",
-    async () => {
-
-        sairBtn.disabled = true;
-
-        sairBtn.textContent =
-            "Saindo...";
-
-
-        const { error } =
-            await supabaseClient.auth.signOut();
-
-
-        if (error) {
-
-            console.error(
-                "Erro ao sair:",
-                error
-            );
-
-            sairBtn.disabled = false;
-
-            sairBtn.textContent =
-                "🚪 Sair";
-
-            return;
-        }
-
-
-        sairBtn.disabled = false;
-
-        sairBtn.textContent =
-            "🚪 Sair";
-
-
-        atualizarPermissoes(null);
-
-    }
-);
-
 /* LOGOUT */
 
 sairBtn.addEventListener("click", async () => {
