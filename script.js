@@ -75,20 +75,19 @@ const cronograma =
 
 let postEditando = null;
 
-adminBtn.addEventListener(
-    "click",
-    () => {
+adminBtn.onclick = function () {
 
-        loginTela.style.display = "flex";
+    console.log("🔥 BOTÃO ADMIN FOI CLICADO!");
 
-        mensagemLogin.textContent = "";
+    loginTela.style.display = "flex";
 
-        emailLogin.value = "";
-        senhaLogin.value = "";
+    mensagemLogin.textContent = "";
 
-        emailLogin.focus();
-    }
-);
+    emailLogin.value = "";
+    senhaLogin.value = "";
+
+    emailLogin.focus();
+};
 
 function atualizarPermissoes(usuario) {
 
