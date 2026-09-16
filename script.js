@@ -1,6 +1,5 @@
 const modal = document.getElementById("modal");
 
-
 /* =====================================================
    SUPABASE
 ===================================================== */
@@ -11,12 +10,10 @@ const SUPABASE_URL =
 const SUPABASE_KEY =
     "sb_publishable_47OTPho0Qw5mfrl69TJ7Cg_h9Z_7NMy";
 
-
 const supabaseClient = supabase.createClient(
     SUPABASE_URL,
     SUPABASE_KEY
 );
-
 
 /* =====================================================
    ELEMENTOS DO LOGIN
@@ -40,9 +37,7 @@ const mensagemLogin =
 const sairBtn =
     document.getElementById("sairBtn");
 
-
 let usuarioLogado = null;
-
 
 /* =====================================================
    ELEMENTOS DO CRONOGRAMA
@@ -75,22 +70,15 @@ const statusInput =
 const cronograma =
     document.getElementById("cronograma");
 
-
 let postEditando = null;
 
-
 /* =====================================================
-   CONTROLE DE PERMISSÕES
+   PERMISSÕES
 ===================================================== */
 
 function atualizarPermissoes(usuario) {
 
     usuarioLogado = usuario;
-
-
-    /*
-       ADMINISTRADOR
-    */
 
     if (usuario) {
 
@@ -102,14 +90,7 @@ function atualizarPermissoes(usuario) {
         sairBtn.style.display =
             "inline-block";
 
-    }
-
-
-    /*
-       VISITANTE
-    */
-
-    else {
+    } else {
 
         loginTela.style.display = "flex";
 
@@ -118,13 +99,7 @@ function atualizarPermissoes(usuario) {
 
         sairBtn.style.display =
             "none";
-
     }
-
-
-    /*
-       Atualizar botões dos posts
-    */
 
     document.querySelectorAll(
         ".publicar, .editar, .excluir"
@@ -134,11 +109,8 @@ function atualizarPermissoes(usuario) {
             usuario
                 ? "inline-block"
                 : "none";
-
     });
-
 }
-
 
 /* =====================================================
    VERIFICAR SESSÃO
@@ -148,7 +120,6 @@ async function verificarSessao() {
 
     const { data, error } =
         await supabaseClient.auth.getSession();
-
 
     if (error) {
 
@@ -162,23 +133,17 @@ async function verificarSessao() {
         return;
     }
 
-
     if (data.session) {
 
         atualizarPermissoes(
             data.session.user
         );
 
-    }
-
-    else {
+    } else {
 
         atualizarPermissoes(null);
-
     }
-
 }
-
 
 /* =====================================================
    LOGIN
@@ -194,9 +159,7 @@ entrarBtn.addEventListener(
         const senha =
             senhaLogin.value;
 
-
         mensagemLogin.textContent = "";
-
 
         if (
             email === "" ||
@@ -209,28 +172,22 @@ entrarBtn.addEventListener(
             return;
         }
 
-
         entrarBtn.disabled = true;
 
         entrarBtn.textContent =
             "Entrando...";
 
-
         const { data, error } =
             await supabaseClient.auth
                 .signInWithPassword({
-
                     email: email,
                     password: senha
-
                 });
-
 
         entrarBtn.disabled = false;
 
         entrarBtn.textContent =
             "Entrar";
-
 
         if (error) {
 
@@ -239,17 +196,11 @@ entrarBtn.addEventListener(
                 error
             );
 
-
             mensagemLogin.textContent =
                 "E-mail ou senha incorretos.";
 
             return;
         }
-
-
-        /*
-           Login realizado
-        */
 
         mensagemLogin.textContent = "";
 
@@ -257,49 +208,52 @@ entrarBtn.addEventListener(
             data.user
         );
 
+        await carregarPosts();
     }
 );
 
-
 /* =====================================================
-   BOTÃO SAIR
+   SAIR
 ===================================================== */
 
-sairBtn.addEventListener("click", async () => {
+sairBtn.addEventListener(
+    "click",
+    async () => {
 
-    alert("CLIQUEI NO BOTÃO SAIR!");
+        sairBtn.disabled = true;
 
-    console.log("1 - Clique no botão Sair detectado");
+        sairBtn.textContent =
+            "Saindo...";
 
-    const { data, error } =
-        await supabaseClient.auth.getSession();
+        const { error } =
+            await supabaseClient.auth.signOut();
 
-    console.log("2 - Sessão atual:", data);
-    console.log("3 - Erro ao pegar sessão:", error);
+        if (error) {
 
-    const resultado =
-        await supabaseClient.auth.signOut();
+            console.error(
+                "Erro ao sair:",
+                error
+            );
 
-    console.log("4 - Resultado do logout:", resultado);
+            sairBtn.disabled = false;
 
-    if (resultado.error) {
+            sairBtn.textContent =
+                "🚪 Sair";
 
-        alert(
-            "Erro ao sair: " +
-            resultado.error.message
-        );
+            return;
+        }
 
-        return;
+        sairBtn.disabled = false;
+
+        sairBtn.textContent =
+            "🚪 Sair";
+
+        atualizarPermissoes(null);
     }
-
-    console.log("5 - Logout realizado!");
-
-    atualizarPermissoes(null);
-
-});
+);
 
 /* =====================================================
-   OBSERVAR ALTERAÇÕES DE LOGIN
+   OBSERVAR LOGIN
 ===================================================== */
 
 supabaseClient.auth.onAuthStateChange(
@@ -311,43 +265,222 @@ supabaseClient.auth.onAuthStateChange(
                 session.user
             );
 
-        }
-
-        else {
+        } else {
 
             atualizarPermissoes(null);
-
         }
-
     }
 );
 
+/* =====================================================
+   CARREGAR POSTS DO SUPABASE
+===================================================== */
+
+async function carregarPosts() {
+
+    const { data, error } =
+        await supabaseClient
+            .from("posts")
+            .select("*")
+            .order("semana", {
+                ascending: true
+            })
+            .order("ordem", {
+                ascending: true
+            })
+            .order("data_publicacao", {
+                ascending: true
+            });
+
+    if (error) {
+
+        console.error(
+            "Erro ao carregar posts:",
+            error
+        );
+
+        alert(
+            "Não foi possível carregar os posts."
+        );
+
+        return;
+    }
+
+    renderizarPosts(data);
+}
 
 /* =====================================================
-   ABRIR MODAL - NOVO POST
+   RENDERIZAR POSTS
+===================================================== */
+
+function renderizarPosts(posts) {
+
+    cronograma.innerHTML = "";
+
+    /* Criar as 6 semanas */
+
+    for (let i = 1; i <= 6; i++) {
+
+        criarSemana(i);
+    }
+
+    /* Colocar os posts nas semanas */
+
+    posts.forEach(post => {
+
+        const semana =
+            document.querySelector(
+                `.semana[data-semana="${post.semana}"]`
+            );
+
+        if (!semana) {
+            return;
+        }
+
+        const container =
+            semana.querySelector(".posts");
+
+        const elemento =
+            criarPostElemento(post);
+
+        container.appendChild(elemento);
+    });
+
+    /* Configurar botões */
+
+    document.querySelectorAll(
+        ".post"
+    ).forEach(post => {
+
+        configurarBotoes(post);
+    });
+
+    atualizarPermissoes(
+        usuarioLogado
+    );
+}
+
+/* =====================================================
+   CRIAR SEMANA
+===================================================== */
+
+function criarSemana(numero) {
+
+    const semana =
+        document.createElement("div");
+
+    semana.className =
+        "semana";
+
+    semana.dataset.semana =
+        numero;
+
+    semana.innerHTML = `
+        <div class="semana-header">
+            <div>
+                <h2>Semana ${numero}</h2>
+                <span>Cronograma</span>
+            </div>
+        </div>
+
+        <div class="posts"></div>
+    `;
+
+    cronograma.appendChild(
+        semana
+    );
+
+    return semana;
+}
+
+/* =====================================================
+   CRIAR ELEMENTO DO POST
+===================================================== */
+
+function criarPostElemento(post) {
+
+    const elemento =
+        document.createElement("div");
+
+    elemento.className =
+        `post ${post.status}`;
+
+    elemento.dataset.id =
+        post.id;
+
+    elemento.dataset.semana =
+        post.semana;
+
+    elemento.dataset.ordem =
+        post.ordem;
+
+    elemento.innerHTML = `
+        <div class="post-topo">
+
+            <span class="numero">
+                POST ${post.ordem}
+            </span>
+
+            <span class="status">
+                ${nomeStatus(post.status)}
+            </span>
+
+        </div>
+
+        <h3>
+            📱 ${escapeHtml(post.titulo)}
+        </h3>
+
+        <p>
+            ${escapeHtml(post.descricao || "")}
+        </p>
+
+        <div class="post-info">
+
+            <span>
+                📅 ${formatarData(post.data_publicacao)}
+            </span>
+
+        </div>
+
+        <div class="acoes">
+
+            <button class="publicar">
+                ✓ Publicar
+            </button>
+
+            <button class="editar">
+                ✏️ Editar
+            </button>
+
+            <button class="excluir">
+                🗑️ Excluir
+            </button>
+
+        </div>
+    `;
+
+    return elemento;
+}
+
+/* =====================================================
+   NOVO POST
 ===================================================== */
 
 novoPostBtn.addEventListener(
     "click",
     () => {
 
-        /*
-           Segurança extra
-        */
-
         if (!usuarioLogado) {
             return;
         }
 
-
         postEditando = null;
-
 
         document.getElementById(
             "modalTitulo"
         ).textContent =
             "Novo Post";
-
 
         tituloInput.value = "";
 
@@ -360,12 +493,11 @@ novoPostBtn.addEventListener(
         statusInput.value =
             "planejado";
 
-
-        modal.classList.add("ativo");
-
+        modal.classList.add(
+            "ativo"
+        );
     }
 );
-
 
 /* =====================================================
    FECHAR MODAL
@@ -378,14 +510,8 @@ fecharModal.addEventListener(
         modal.classList.remove(
             "ativo"
         );
-
     }
 );
-
-
-/* =====================================================
-   CLICAR FORA DO MODAL
-===================================================== */
 
 modal.addEventListener(
     "click",
@@ -398,12 +524,9 @@ modal.addEventListener(
             modal.classList.remove(
                 "ativo"
             );
-
         }
-
     }
 );
-
 
 /* =====================================================
    SALVAR POST
@@ -411,21 +534,16 @@ modal.addEventListener(
 
 salvarPost.addEventListener(
     "click",
-    () => {
-
-        /*
-           Segurança extra
-        */
+    async () => {
 
         if (!usuarioLogado) {
 
             alert(
-                "Você precisa estar logado como administrador."
+                "Você precisa estar logado."
             );
 
             return;
         }
-
 
         const titulo =
             tituloInput.value.trim();
@@ -436,6 +554,13 @@ salvarPost.addEventListener(
         const data =
             dataInput.value;
 
+        const semana =
+            Number(
+                semanaInput.value
+            );
+
+        const status =
+            statusInput.value;
 
         if (titulo === "") {
 
@@ -446,7 +571,6 @@ salvarPost.addEventListener(
             return;
         }
 
-
         if (data === "") {
 
             alert(
@@ -456,179 +580,188 @@ salvarPost.addEventListener(
             return;
         }
 
+        salvarPost.disabled = true;
 
-        /* =================================================
-           EDITAR POST
-        ================================================= */
+        salvarPost.textContent =
+            "Salvando...";
+
+        /* =============================================
+           EDITAR
+        ============================================= */
 
         if (postEditando) {
 
-            postEditando
-                .querySelector("h3")
-                .textContent =
-                    "📱 " + titulo;
+            const id =
+                Number(
+                    postEditando.dataset.id
+                );
 
+            const { data: postAtualizado, error } =
+                await supabaseClient
+                    .from("posts")
+                    .update({
+                        semana: semana,
+                        titulo: titulo,
+                        descricao:
+                            descricao || null,
+                        data_publicacao: data,
+                        status: status,
+                        atualizado_em:
+                            new Date().toISOString()
+                    })
+                    .eq("id", id)
+                    .select()
+                    .single();
 
-            postEditando
-                .querySelector(".post p")
-                .textContent =
-                    descricao;
+            if (error) {
 
+                console.error(
+                    "Erro ao editar:",
+                    error
+                );
 
-            postEditando
-                .querySelector(
-                    ".post-info span"
-                )
-                .textContent =
-                    "📅 " +
-                    formatarData(data);
+                alert(
+                    "Erro ao editar o post."
+                );
 
+                salvarPost.disabled = false;
 
-            atualizarStatus(
-                postEditando,
-                statusInput.value
+                salvarPost.textContent =
+                    "Salvar Post";
+
+                return;
+            }
+
+            console.log(
+                "Post atualizado:",
+                postAtualizado
             );
-
 
             modal.classList.remove(
                 "ativo"
             );
 
+            postEditando = null;
 
-            salvarDados();
+            await carregarPosts();
 
+            salvarPost.disabled = false;
+
+            salvarPost.textContent =
+                "Salvar Post";
 
             return;
         }
 
-
-        /* =================================================
+        /* =============================================
            NOVO POST
-        ================================================= */
+        ============================================= */
 
-        const semanaNumero =
-            semanaInput.value;
+        const { data: postsDaSemana, error: erroBusca } =
+            await supabaseClient
+                .from("posts")
+                .select("ordem")
+                .eq("semana", semana)
+                .order("ordem", {
+                    ascending: false
+                })
+                .limit(1);
 
+        if (erroBusca) {
 
-        let semana =
-            document.querySelector(
-                `.semana:nth-child(${semanaNumero})`
+            console.error(
+                "Erro ao verificar ordem:",
+                erroBusca
             );
 
+            alert(
+                "Erro ao preparar o novo post."
+            );
 
-        /*
-           Caso a semana não exista
-        */
+            salvarPost.disabled = false;
 
-        if (!semana) {
+            salvarPost.textContent =
+                "Salvar Post";
 
-            semana =
-                criarSemana(
-                    semanaNumero
-                );
-
+            return;
         }
 
+        const ultimaOrdem =
+            postsDaSemana.length > 0
+                ? postsDaSemana[0].ordem
+                : 0;
 
-        const posts =
-            semana.querySelector(
-                ".posts"
-            );
+        const novaOrdem =
+            ultimaOrdem + 1;
 
-
-        if (
-            posts.children.length >= 3
-        ) {
+        if (novaOrdem > 3) {
 
             alert(
                 "Essa semana já possui 3 posts."
             );
 
+            salvarPost.disabled = false;
+
+            salvarPost.textContent =
+                "Salvar Post";
+
             return;
         }
 
+        const { data: novoPost, error } =
+            await supabaseClient
+                .from("posts")
+                .insert({
+                    semana: semana,
+                    titulo: titulo,
+                    descricao:
+                        descricao || null,
+                    data_publicacao: data,
+                    status: status,
+                    ordem: novaOrdem
+                })
+                .select()
+                .single();
 
-        const post =
-            document.createElement(
-                "div"
+        if (error) {
+
+            console.error(
+                "Erro ao criar post:",
+                error
             );
 
+            alert(
+                "Erro ao salvar o post."
+            );
 
-        post.className =
-            "post " +
-            statusInput.value;
+            salvarPost.disabled = false;
 
+            salvarPost.textContent =
+                "Salvar Post";
 
-        post.innerHTML = `
+            return;
+        }
 
-            <div class="post-topo">
-
-                <span class="numero">
-                    POST ${posts.children.length + 1}
-                </span>
-
-                <span class="status">
-                    ${nomeStatus(
-                        statusInput.value
-                    )}
-                </span>
-
-            </div>
-
-            <h3>
-                📱 ${titulo}
-            </h3>
-
-            <p>
-                ${descricao}
-            </p>
-
-            <div class="post-info">
-
-                <span>
-                    📅 ${formatarData(data)}
-                </span>
-
-            </div>
-
-            <div class="acoes">
-
-                <button class="publicar">
-                    ✓ Publicar
-                </button>
-
-                <button class="editar">
-                    ✏️ Editar
-                </button>
-
-                <button class="excluir">
-                    🗑️ Excluir
-                </button>
-
-            </div>
-
-        `;
-
-
-        posts.appendChild(post);
-
-
-        configurarBotoes(post);
-
+        console.log(
+            "Novo post criado:",
+            novoPost
+        );
 
         modal.classList.remove(
             "ativo"
         );
 
+        await carregarPosts();
 
-        salvarDados();
+        salvarPost.disabled = false;
 
+        salvarPost.textContent =
+            "Salvar Post";
     }
 );
 
-
 /* =====================================================
-   CONFIGURAR BOTÕES DOS POSTS
+   CONFIGURAR BOTÕES
 ===================================================== */
 
 function configurarBotoes(post) {
@@ -648,11 +781,6 @@ function configurarBotoes(post) {
             ".excluir"
         );
 
-
-    /*
-       Mostrar/esconder botões
-    */
-
     publicar.style.display =
         usuarioLogado
             ? "inline-block"
@@ -668,35 +796,58 @@ function configurarBotoes(post) {
             ? "inline-block"
             : "none";
 
-
-    /* =================================================
+    /* =============================================
        PUBLICAR
-    ================================================= */
+    ============================================= */
 
     publicar.addEventListener(
         "click",
-        () => {
+        async () => {
 
             if (!usuarioLogado) {
                 return;
             }
 
+            const id =
+                Number(
+                    post.dataset.id
+                );
 
-            atualizarStatus(
-                post,
-                "publicado"
-            );
+            publicar.disabled = true;
 
+            const { error } =
+                await supabaseClient
+                    .from("posts")
+                    .update({
+                        status: "publicado",
+                        atualizado_em:
+                            new Date().toISOString()
+                    })
+                    .eq("id", id);
 
-            salvarDados();
+            publicar.disabled = false;
 
+            if (error) {
+
+                console.error(
+                    "Erro ao publicar:",
+                    error
+                );
+
+                alert(
+                    "Erro ao publicar o post."
+                );
+
+                return;
+            }
+
+            await carregarPosts();
         }
     );
 
-
-    /* =================================================
+    /* =============================================
        EDITAR
-    ================================================= */
+    ============================================= */
 
     editar.addEventListener(
         "click",
@@ -706,16 +857,13 @@ function configurarBotoes(post) {
                 return;
             }
 
-
             postEditando =
                 post;
-
 
             document.getElementById(
                 "modalTitulo"
             ).textContent =
                 "Editar Post";
-
 
             tituloInput.value =
                 post.querySelector(
@@ -725,18 +873,16 @@ function configurarBotoes(post) {
                 .replace(
                     "📱 ",
                     ""
-                );
-
+                )
+                .trim();
 
             descricaoInput.value =
                 post.querySelector(
                     "p"
                 ).textContent;
 
-
-            /*
-               Recuperar status
-            */
+            semanaInput.value =
+                post.dataset.semana;
 
             if (
                 post.classList.contains(
@@ -747,9 +893,7 @@ function configurarBotoes(post) {
                 statusInput.value =
                     "publicado";
 
-            }
-
-            else if (
+            } else if (
                 post.classList.contains(
                     "producao"
                 )
@@ -758,119 +902,137 @@ function configurarBotoes(post) {
                 statusInput.value =
                     "producao";
 
-            }
-
-            else {
+            } else {
 
                 statusInput.value =
                     "planejado";
-
             }
 
+            const dataBanco =
+                encontrarDataNoPost(
+                    post
+                );
 
-            /*
-               Recuperar data
-
-               O HTML mostra a data formatada,
-               então tentamos converter novamente.
-            */
-
-            const textoData =
-                post.querySelector(
-                    ".post-info span"
-                ).textContent
-                .replace("📅 ", "")
-                .trim();
-
-
-            const partes =
-                textoData
-                    .split(" — ")[0]
-                    .split("/");
-
-
-            if (
-                partes.length === 3
-            ) {
-
-                dataInput.value =
-                    `${partes[2]}-${partes[1]}-${partes[0]}`;
-
-            }
-
+            dataInput.value =
+                dataBanco;
 
             modal.classList.add(
                 "ativo"
             );
-
         }
     );
 
-
-    /* =================================================
+    /* =============================================
        EXCLUIR
-    ================================================= */
+    ============================================= */
 
     excluir.addEventListener(
         "click",
-        () => {
+        async () => {
 
             if (!usuarioLogado) {
                 return;
             }
-
 
             const confirmar =
                 confirm(
                     "Deseja excluir este post?"
                 );
 
-
-            if (confirmar) {
-
-                post.remove();
-
-                salvarDados();
-
+            if (!confirmar) {
+                return;
             }
 
+            const id =
+                Number(
+                    post.dataset.id
+                );
+
+            excluir.disabled = true;
+
+            const { error } =
+                await supabaseClient
+                    .from("posts")
+                    .delete()
+                    .eq("id", id);
+
+            excluir.disabled = false;
+
+            if (error) {
+
+                console.error(
+                    "Erro ao excluir:",
+                    error
+                );
+
+                alert(
+                    "Erro ao excluir o post."
+                );
+
+                return;
+            }
+
+            await reorganizarOrdens(
+                Number(post.dataset.semana)
+            );
+
+            await carregarPosts();
         }
     );
-
 }
 
-
 /* =====================================================
-   ALTERAR STATUS
+   REORGANIZAR ORDEM
 ===================================================== */
 
-function atualizarStatus(
-    post,
-    status
+async function reorganizarOrdens(
+    semana
 ) {
 
-    post.classList.remove(
-        "planejado",
-        "producao",
-        "publicado"
-    );
+    const { data: posts, error } =
+        await supabaseClient
+            .from("posts")
+            .select("id")
+            .eq("semana", semana)
+            .order("data_publicacao", {
+                ascending: true
+            })
+            .order("id", {
+                ascending: true
+            });
 
+    if (error) {
 
-    post.classList.add(
-        status
-    );
+        console.error(
+            "Erro ao reorganizar:",
+            error
+        );
 
+        return;
+    }
 
-    post.querySelector(
-        ".status"
-    ).textContent =
-        nomeStatus(status);
+    for (
+        let i = 0;
+        i < posts.length;
+        i++
+    ) {
 
+        await supabaseClient
+            .from("posts")
+            .update({
+                ordem: i + 1,
+                atualizado_em:
+                    new Date().toISOString()
+            })
+            .eq(
+                "id",
+                posts[i].id
+            );
+    }
 }
 
-
 /* =====================================================
-   NOME DO STATUS
+   STATUS
 ===================================================== */
 
 function nomeStatus(status) {
@@ -878,31 +1040,23 @@ function nomeStatus(status) {
     if (
         status === "planejado"
     ) {
-
         return "Planejado";
-
     }
-
 
     if (
         status === "producao"
     ) {
-
         return "Em produção";
-
     }
-
 
     if (
         status === "publicado"
     ) {
-
         return "Publicado";
-
     }
 
+    return status;
 }
-
 
 /* =====================================================
    FORMATAR DATA
@@ -910,9 +1064,12 @@ function nomeStatus(status) {
 
 function formatarData(data) {
 
+    if (!data) {
+        return "";
+    }
+
     const partes =
         data.split("-");
-
 
     const ano =
         Number(partes[0]);
@@ -923,7 +1080,6 @@ function formatarData(data) {
     const dia =
         Number(partes[2]);
 
-
     const dataObj =
         new Date(
             ano,
@@ -931,142 +1087,77 @@ function formatarData(data) {
             dia
         );
 
-
     const diasSemana = [
-
         "Domingo",
-
         "Segunda-feira",
-
         "Terça-feira",
-
         "Quarta-feira",
-
         "Quinta-feira",
-
         "Sexta-feira",
-
         "Sábado"
-
     ];
-
 
     const diaSemana =
         diasSemana[
             dataObj.getDay()
         ];
 
-
     return `${partes[2]}/${partes[1]}/${partes[0]} — ${diaSemana}`;
-
 }
 
-
 /* =====================================================
-   CRIAR SEMANA
+   RECUPERAR DATA DO POST
 ===================================================== */
 
-function criarSemana(numero) {
+function encontrarDataNoPost(post) {
 
-    const semana =
+    const texto =
+        post.querySelector(
+            ".post-info span"
+        ).textContent
+        .replace("📅 ", "")
+        .trim();
+
+    const partes =
+        texto
+            .split(" — ")[0]
+            .split("/");
+
+    if (
+        partes.length !== 3
+    ) {
+        return "";
+    }
+
+    return `${partes[2]}-${partes[1]}-${partes[0]}`;
+}
+
+/* =====================================================
+   ESCAPAR HTML
+===================================================== */
+
+function escapeHtml(texto) {
+
+    const div =
         document.createElement(
             "div"
         );
 
+    div.textContent =
+        texto;
 
-    semana.className =
-        "semana";
-
-
-    semana.innerHTML = `
-
-        <div class="semana-header">
-
-            <div>
-
-                <h2>
-                    Semana ${numero}
-                </h2>
-
-                <span>
-                    Cronograma
-                </span>
-
-            </div>
-
-        </div>
-
-        <div class="posts"></div>
-
-    `;
-
-
-    cronograma.appendChild(
-        semana
-    );
-
-
-    return semana;
-
+    return div.innerHTML;
 }
-
-
-/* =====================================================
-   SALVAR NO NAVEGADOR
-===================================================== */
-
-function salvarDados() {
-
-    localStorage.setItem(
-        "cronograma",
-        cronograma.innerHTML
-    );
-
-}
-
-
-/* =====================================================
-   CARREGAR DADOS
-===================================================== */
-
-function carregarDados() {
-
-    const dados =
-        localStorage.getItem(
-            "cronograma"
-        );
-
-
-    if (dados) {
-
-        cronograma.innerHTML =
-            dados;
-
-    }
-
-
-    /*
-       Configurar os posts depois
-       de carregar o localStorage.
-    */
-
-    document.querySelectorAll(
-        ".post"
-    ).forEach(post => {
-
-        configurarBotoes(
-            post
-        );
-
-    });
-
-}
-
 
 /* =====================================================
    INICIALIZAÇÃO
 ===================================================== */
 
-carregarDados();
+async function iniciar() {
 
-verificarSessao();
+    await verificarSessao();
+
+    await carregarPosts();
+}
+
+iniciar();
