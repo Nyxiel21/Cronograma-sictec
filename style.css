@@ -384,16 +384,31 @@ textarea {
     color: #dc2626;
 }
 
-#sairBtn {
+/* BOTÕES DO HEADER */
+
+.botoes-header {
     position: absolute;
 
     top: 20px;
     right: 20px;
 
-    z-index: 20;
+    display: flex;
+    gap: 10px;
 
+    z-index: 20;
+}
+
+#adminBtn {
     background: white;
     color: #202124;
+}
+
+#adminBtn:hover {
+    background: #f1f1f1;
+}
+
+.botoes-header #sairBtn {
+    position: static;
 }
 
 #sairBtn:hover {
