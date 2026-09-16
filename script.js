@@ -36,6 +36,7 @@ const mensagemLogin =
 
 const sairBtn =
     document.getElementById("sairBtn");
+
 const adminBtn =
     document.getElementById("adminBtn");
 
@@ -78,8 +79,12 @@ adminBtn.addEventListener(
     "click",
     () => {
 
-        loginTela.style.display =
-            "flex";
+        loginTela.style.display = "flex";
+
+        mensagemLogin.textContent = "";
+
+        emailLogin.value = "";
+        senhaLogin.value = "";
 
         emailLogin.focus();
     }
@@ -90,10 +95,6 @@ function atualizarPermissoes(usuario) {
     usuarioLogado = usuario;
 
     if (usuario) {
-
-        /* ==============================
-           ADMINISTRADOR
-        ============================== */
 
         loginTela.style.display = "none";
 
@@ -108,10 +109,6 @@ function atualizarPermissoes(usuario) {
 
     } else {
 
-        /* ==============================
-           VISITANTE
-        ============================== */
-
         loginTela.style.display = "none";
 
         novoPostBtn.style.display =
@@ -123,8 +120,6 @@ function atualizarPermissoes(usuario) {
         adminBtn.style.display =
             "inline-block";
     }
-
-    /* Botões dos posts */
 
     document.querySelectorAll(
         ".publicar, .editar, .excluir"
